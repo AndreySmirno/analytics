@@ -10,7 +10,7 @@ from arch import arch_model
 cur_d = dt.date.today()
 prev_d = dt.date.today() - dt.timedelta(days=900)
 
-with open('C:/py_projects_and_stuff/venv/config_currency.yaml') as file:
+with open('config_currency.yaml') as file:
     symbol_list = yaml.full_load(file)
 
 asset_file = []
