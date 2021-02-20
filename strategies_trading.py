@@ -59,14 +59,14 @@ def reset_i(data):
 
 sber = pd.read_csv('http://export.finam.ru/export9.out?market=1&em=3&token=03AGdBq26yq3eHxCH8SXsJ8FRVIz0PJpD7mHHo-vumtYqRiPX6lwznp6gnJ_egXuIse-tpKao9df7U2XQQEYDCmtP4OvXWJL9UYPybOXat3J0-TlJJC-JWUFFow7CWce-7v2p99Py5kPxG1vT4QUs-urFtp3mrOLd_XfxFwA9Ca5XXoEwX6NCvPkoPOE-M6Pjx7TWH9_KUoQFKdSdgYUkFiVRX2D22QYRFP_-JzeNbtQoMO0wVRwmutmTFjV08OiOgz0qbFgAJXhiGtrY5NluKJEa_xIGOrhymRG1lmnjf4qTl4LhnDqx71d6PlzCd8UEJCB0DNPOmhsjVGPtWWKI0aRX2vbR3U-vg7uugSFDgGm_Ud7x9OVOazAwIc8s3RNY-9JgTQ6IYHU5xBjuQF4BSJZu_QK2UFJeMiUzdv1Ypm2XNtC1HL43V5y8&code=SBER&apply=0&df='+str(start_day)+'&mf='+str(start_month)+'&yf='+str(start_year)+'&from='+str(start_date)+'&dt='+str(end_day)+'&mt='+str(end_month)+'&yt='+str(start_year)+'&to='+str(end_date)+'&p=8&f=SBER_201026_201031&e=.csv&cn=SBER&dtf=1&tmf=3&MSOR=1&mstime=on&mstimever=1&sep=1&sep2=1&datf=1&at=1', sep=',')
 y_data = dt.datetime.strptime(str(sber['<DATE>'][0]), '%Y%m%d').year
-sber.to_csv('F:/historical_data/daily_for_year/SBER_'+str(y_data)+'.csv', index=False)
+sber.to_csv('SBER_'+str(y_data)+'.csv', index=False)
 sber_y = data_converter(sber)
 
 years = ['2015', '2016', '2017', '2018', '2019', '2020', '2021']
 
 historical_data = []
 for i in range(len(years)):
-    data = pd.read_csv('F:/historical_data/daily_for_year/SBER_'+str(years[i])+'.csv', sep=',')
+    data = pd.read_csv('SBER_'+str(years[i])+'.csv', sep=',')
     historical_data.append(data_converter(data))
 
 sber_hist = pd.concat(historical_data)
