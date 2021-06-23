@@ -56,8 +56,10 @@ def reset_i(data):
     data = data.drop('index', axis=1)
     return data
 
+# "https://export.finam.ru/export9.out?market=1&em=3&token=03AGdBq25IV--S9KJG158ltwZ3oNl8CPl8vH84AQZPtgPnByqZ7_nuoWfoFGSlkeVc5OIYSawzKztPPNbJKctduME3EhSm7JcrLFHMQa0TP3EhdQRCB4IVTY2-rt8tv-HOQlKLdV9fPIct5wg4b5pjzsSk-e1LMab7EWL_3OVKnCR29u9HezkfoiFdXwQ4i9WweLNr6OGtPd1xeoGnf8eZlagu-Qm8wXOlcCb_-62W78vtfFf-4LOlVWxaBJ_6S9IuIzFlo6i6cnpd7gnboYB3k5_G_kOWQF-OYOHlhwzlZgO-9AgIeaqq2pzRRJy_5IEdOfXOiJg8DeupoU5iYkILyvBvB70zbrSRmzNZvydQHMnHIVfHLYScOIizXB5M92wavhHizqL6TV6tWk0FBg7NtBWzTTZmT81xn5FHTmKLfQeirayZRjp1cEScSB6NoBXxqY9tq_9ON4khboUDTNs2UaOa5df5WQoAfQ&code=SBER&apply=0&df=1&mf=3&yf=2020&from=01.04.2020&dt=30&mt=5&yt=2020&to=30.06.2020&p=2&f=SBER_200401_200630&e=.txt&cn=SBER&dtf=4&tmf=3&MSOR=1&mstime=on&mstimever=1&sep=1&sep2=1&datf=1&at=1"
+sber = pd.read_csv('http://export.finam.ru/export9.out?market=1&em=3&token=03AGdBq26yq3eHxCH8SXsJ8FRVIz0PJpD7mHHo-vumtYqRiPX6lwznp6gnJ_egXuIse-tpKao9df7U2XQQEYDCmtP4OvXWJL9UYPybOXat3J0-TlJJC-JWUFFow7CWce-7v2p99Py5kPxG1vT4QUs-urFtp3mrOLd_XfxFwA9Ca5XXoEwX6NCvPkoPOE-M6Pjx7TWH9_KUoQFKdSdgYUkFiVRX2D22QYRFP_-JzeNbtQoMO0wVRwmutmTFjV08OiOgz0qbFgAJXhiGtrY5NluKJEa_xIGOrhymRG1lmnjf4qTl4LhnDqx71d6PlzCd8UEJCB0DNPOmhsjVGPtWWKI0aRX2vbR3U-vg7uugSFDgGm_Ud7x9OVOazAwIc8s3RNY-9JgTQ6IYHU5xBjuQF4BSJZu_QK2UFJeMiUzdv1Ypm2XNtC1HL43V5y8&code=SBER&apply=0&df='+str(start_day)+'&mf='+str(start_month)+'&yf='+str(start_year)+'&from='+str(start_date)+'&dt='+str(end_day)+'&mt='+str(end_month)+'&yt='+str(start_year)+'&to='+str(end_date)+'&p=2&f=SBER_201026_201031&e=.csv&cn=SBER&dtf=1&tmf=3&MSOR=1&mstime=on&mstimever=1&sep=1&sep2=1&datf=1&at=1', sep=',')
+data_converter(sber)
 
-sber = pd.read_csv('http://export.finam.ru/export9.out?market=1&em=3&token=03AGdBq26yq3eHxCH8SXsJ8FRVIz0PJpD7mHHo-vumtYqRiPX6lwznp6gnJ_egXuIse-tpKao9df7U2XQQEYDCmtP4OvXWJL9UYPybOXat3J0-TlJJC-JWUFFow7CWce-7v2p99Py5kPxG1vT4QUs-urFtp3mrOLd_XfxFwA9Ca5XXoEwX6NCvPkoPOE-M6Pjx7TWH9_KUoQFKdSdgYUkFiVRX2D22QYRFP_-JzeNbtQoMO0wVRwmutmTFjV08OiOgz0qbFgAJXhiGtrY5NluKJEa_xIGOrhymRG1lmnjf4qTl4LhnDqx71d6PlzCd8UEJCB0DNPOmhsjVGPtWWKI0aRX2vbR3U-vg7uugSFDgGm_Ud7x9OVOazAwIc8s3RNY-9JgTQ6IYHU5xBjuQF4BSJZu_QK2UFJeMiUzdv1Ypm2XNtC1HL43V5y8&code=SBER&apply=0&df='+str(start_day)+'&mf='+str(start_month)+'&yf='+str(start_year)+'&from='+str(start_date)+'&dt='+str(end_day)+'&mt='+str(end_month)+'&yt='+str(start_year)+'&to='+str(end_date)+'&p=8&f=SBER_201026_201031&e=.csv&cn=SBER&dtf=1&tmf=3&MSOR=1&mstime=on&mstimever=1&sep=1&sep2=1&datf=1&at=1', sep=',')
 y_data = dt.datetime.strptime(str(sber['<DATE>'][0]), '%Y%m%d').year
 sber.to_csv('SBER_'+str(y_data)+'.csv', index=False)
 sber_y = data_converter(sber)
@@ -273,3 +275,14 @@ regression.compile(optimizer='adam', loss='mean_squared_error')
 regression.fit(X_n_train, y_n_train, epochs=100, batch_size=32)
 
 print('RMSE of model to target', score)
+
+
+## стратегия покупать на 5% CVaR GARCH и продавать на 95% CVaR GARCH. Написать симуляцию процесса на минутных свечах
+# внутри дня для нескольких активов и попытаться обучить простую модель, для получения параметров
+
+
+
+
+
+
+
