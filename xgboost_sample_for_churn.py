@@ -14,7 +14,7 @@ from sklearn.metrics import plot_confusion_matrix, f1_score, classification_repo
 import re
 import string
 import math
-
+import os
 pd.set_option('display.max_columns', 500)
 
 
@@ -224,8 +224,8 @@ class LearningAndValidating:
         return preds, self.y_train, conf_matr, result_cf
 
 
+df = pd.read_csv(os.getcwd()+'/venv/Telco_customer_churn.csv')
 
-df = pd.read_csv('F:/dataset_samples/Telco_customer_churn.csv')
 
 df.drop(['Churn Label', 'Churn Score', 'CLTV', 'Churn Reason', 'Count', 'Country', 'State', 'CustomerID', 'Lat Long'], axis=1, inplace=True)
 
@@ -319,4 +319,4 @@ print(classification_report(y_test, test_predictions))
 #  this automated method gives: 76.43%
 #  automated method is works not that good, but faster and still a bit more precise.
 #  the main advantage that it works automative and still good for common and custom eval metrics and at test works
-#  approximately same. 
+#  approximately same.
