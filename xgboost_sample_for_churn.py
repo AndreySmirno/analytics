@@ -15,6 +15,7 @@ import re
 import string
 import math
 import os
+import warnings
 pd.set_option('display.max_columns', 500)
 
 
@@ -102,6 +103,8 @@ class LearningAndValidating:
                     if best_params[i] == min(params_grid[i]):
                         name.append(i)
                         if type(best_params[i]) == float:
+                            # params_grid[i] = values of params
+                            # print('Params grid ', params_grid[i], '   Best param ', best_params, ' i ', i)
                             value = (best_params[i] + sm(params_grid[i])) / 2
                             if best_params[i] - (value - best_params[i]) > 0:
 
@@ -120,9 +123,16 @@ class LearningAndValidating:
                             para.append([best_params[i]])
                         else:
                             if type(best_params[i]) == float:
+                                # print('Params grid ', params_grid[i], '   Best param ', best_params)
                                 value = (best_params[i] + smax(params_grid[i])) / 2
                                 if value > 0:
-                                    para.append([value, best_params[i], best_params[i] + (best_params[i] - value)])
+                                    if (i == 'colsample_bytree') or (i == 'subsample'):
+                                        if (best_params[i] + (best_params[i] - value)) > 1:
+                                            para.append([value, best_params[i], 1.])
+                                        else:
+                                            para.append([value, best_params[i], best_params[i] + (best_params[i] - value)])
+                                    else:
+                                        para.append([value, best_params[i], best_params[i] + (best_params[i] - value)])
                                 else:
                                     para.append([best_params[i], best_params[i] + (best_params[i] - value)])
                             else:
@@ -136,8 +146,17 @@ class LearningAndValidating:
                         idx = params_grid[i].index(best_params[i])
                         name.append(i)
                         if type(best_params[i]) == float:
-                            value_less = (params_grid[i][idx] + params_grid[i][idx - 1]) / 2
-                            value_more = (params_grid[i][idx + 1] + params_grid[i][idx]) / 2
+                            # print('Params grid ', params_grid[i], '   Best param ', best_params)
+                            if (i == 'colsample_bytree') or (i == 'subsample'):
+                                value_less = (params_grid[i][idx] + params_grid[i][idx - 1]) / 2
+                                value_more = (params_grid[i][idx + 1] + params_grid[i][idx]) / 2
+                                if value_less < 0.:
+                                    value_less = 0.
+                                if value_more > 1.:
+                                    value_more = 1.
+                            else:
+                                value_less = (params_grid[i][idx] + params_grid[i][idx - 1]) / 2
+                                value_more = (params_grid[i][idx + 1] + params_grid[i][idx]) / 2
                             para.append([value_less, best_params[i], value_more])
                         else:
                             if (params_grid[i][idx + 1] - params_grid[i][idx]) and (
@@ -189,11 +208,13 @@ class LearningAndValidating:
     @params_blender
     def BruteGridCV(self, dict_arg):
         dict_arg = dict_arg
-        opt_params = GridSearchCV(
-            estimator=self.estimator,
-            param_grid=dict_arg, scoring=self.quality_func, verbose=0, n_jobs=-1, cv=self.cross_val_folds)
-        opt_params.fit(self.X_train, self.y_train, early_stopping_rounds=10, eval_metric=self.eval_metric, eval_set=[(self.X_test, self.y_test)],
-                       verbose=False)
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            opt_params = GridSearchCV(
+                estimator=self.estimator,
+                param_grid=dict_arg, scoring=self.quality_func, verbose=0, n_jobs=-1, cv=self.cross_val_folds)
+            opt_params.fit(self.X_train, self.y_train, early_stopping_rounds=10, eval_metric=self.eval_metric, eval_set=[(self.X_test, self.y_test)],
+                           verbose=False)
 
         best_params = opt_params.best_params_
         best_score = opt_params.best_score_
@@ -266,11 +287,11 @@ params_to_test = {
     'objective' : ['binary:logistic'],
     'subsample': [0.9, 0.8],
     'colsample_bytree': [0.5, 0.4],
-    'max_depth': [4, 7],
-   'learning_rate': [0.1, 0.0001],
-   'gamma' : [0.25],
-   'reg_lambda': [10., 20., 100.],
-   'scale_pos_weight': [1, 3, 6],
+    # 'max_depth': [4, 7],
+   # 'learning_rate': [0.1, 0.0001],
+   'gamma' : [5,10],
+   # 'reg_lambda': [10., 20., 100.],
+   # 'scale_pos_weight': [1, 3, 6],
     'seed': [42],
     'missing': [1]
 
@@ -300,6 +321,9 @@ conf_matrix_ratios = LearningAndValidating(X_train=X_train, y_train=y_train, X_t
 
 # The comon flow with a lot of rounds of tuning parameters to find the best set
 
+# subsample value is between 0 and 1
+# colsample by tree value is between 0 and 1
+#
 test_model = XGBClassifier(gamma=0.25, colsample_bytree=0.5, max_depth=4, seed=42, subsample=0.9,
                            missing=1, objective='binary:logistic',reg_lambda=10, scale_pos_weight=3,
                            learn_rate=0.1)

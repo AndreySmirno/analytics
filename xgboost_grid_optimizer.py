@@ -338,6 +338,10 @@ class QuickSegment:
         return components, stand_data, pca_sc.explained_variance_ratio_, correlation_matrix
 
     def auto_category(self):
+        # there is a graphical method that could be converted to analytical is an elbow method of explained variance
+        # according this method we would search an efficient number of variables automatically
+        # for that reason we should create a iterator over the dataset and estimate the delta variable
+
         from xgboost import XGBClassifier
         import numpy as np
         import pandas as pd
